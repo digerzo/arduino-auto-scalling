@@ -1,7 +1,9 @@
 int pulsadorPin = 4; // Variable que guarda el número del pin al que conectamos el pulsador.
-int valorPulsador = LOW; // Variable donde almacenaremos la lectura del estado del pulsador.
+
+
+int valorPulsador = LOW;
+int valorPulsadorAnterior = HIGH; //inicio asi
 int contador = 0;
-int puedoSumar = 1; 
 
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
@@ -9,18 +11,15 @@ void setup() {
 }
  
 void loop(){
+  valorPulsadorAnterior = valorPulsador;
   valorPulsador = digitalRead(pulsadorPin);
  
-  if (valorPulsador == HIGH) {
+  if (valorPulsador == HIGH && valorPulsadorAnterior == LOW) {
       Serial.println("Pulsado");
-      if (puedoSumar == 1) {
-        puedoSumar = 0;
-        contador ++;        
-      }
+      contador ++;
   }
   else {
       Serial.println("No pulsado");
-      puedoSumar = 1;
   }
   Serial.println(contador);
   delay(100); // Espera un segundo al final del bucle
