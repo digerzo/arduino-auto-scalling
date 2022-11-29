@@ -1,7 +1,13 @@
 int pulsadorPinIncremento = 4; // Variable que guarda el número del pin al que conectamos el pulsador.
 int pulsadorPinDecremento = 5;
-int pinLed = 6;
-int pinLedV = 7;
+int pinLed1 = 6;
+int pinLed2 = 7;
+int pinLed3 = 8;
+int pinLed4 = 9;
+int pinLed5 = 10;
+
+int leds [5] = {pinLed1,pinLed2,pinLed3,pinLed4,pinLed5};
+
 int pinLedCooldown = 2;
 
 int vPulsadorIncremento = LOW;
@@ -14,18 +20,24 @@ int contador = 0;
 int tiempoDelay = 100;
 int tiempoCooldownRestante = 0;
 
+void iniciarPinLeds(){
+  for (int i=pinLed1; i < pinLed1 + 5; i++) {
+    pinMode(i, OUTPUT);
+    digitalWrite(i, LOW);
+    Serial.println(i);
+  }
+}
+
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
   pinMode(pulsadorPinIncremento, INPUT);
   pinMode(pulsadorPinIncremento, INPUT);
-  
-  pinMode(pinLed, OUTPUT);
-  digitalWrite(pinLed, LOW);
-  pinMode(pinLedV, OUTPUT);
-  digitalWrite(pinLedV, LOW);
+
   pinMode(pinLedCooldown, OUTPUT);
   digitalWrite(pinLedCooldown, LOW);
-  
+
+  iniciarPinLeds();
+
 }
 
 void controlarLed(int led, int limite) {
@@ -36,6 +48,7 @@ void controlarLed(int led, int limite) {
       digitalWrite(led, LOW);   
     }
   }
+
 
 void actualizarContador() {
   vPulsadorIncrementoAnterior = vPulsadorIncremento;
@@ -64,8 +77,8 @@ void loop(){
   
   actualizarContador();
   if (!enCooldown()) {
-    controlarLed(pinLed, 10);
-    controlarLed(pinLedV, 15);
+    controlarLed(pinLed1, 10);
+    controlarLed(pinLed2, 15);
     digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
   }
   else {
