@@ -9,9 +9,10 @@ int vPulsadorIncrementoAnterior = HIGH; //inicio asi
 int vPulsadorDecremento = LOW;
 int vPulsadorDecrementoAnterior = HIGH; //inicio asi
 
-
+const int tiempoCooldown = 30000; // 30 segundos
 int contador = 0;
 int tiempoDelay = 100;
+int tiempoCooldownRestante = 0;
 
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
@@ -48,21 +49,41 @@ void actualizarContador() {
 }
 
 bool enCooldown(){
-  return contador > 20;  
+  return tiempoCooldownRestante > 0;  
+}
+
+void actualizarCooldown(int tiempo){
+  tiempoCooldownRestante = tiempoCooldownRestante - tiempo;
+}
+
+int len(int arrayInt[]) {
+  return sizeof arrayInt / sizeof arrayInt[0];  
 }
 
 void loop(){
-
+  
   actualizarContador();
   if (!enCooldown()) {
     controlarLed(pinLed, 10);
     controlarLed(pinLedV, 15);
-    digitalWrite(pinLedCooldown, LOW);
+    digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
   }
   else {
-    digitalWrite(pinLedCooldown, HIGH);    
+    digitalWrite(pinLedCooldown, HIGH);
+    actualizarCooldown(tiempoDelay);
   }
 
   Serial.println(contador);
+  
   delay(tiempoDelay); // Espera un segundo al final del bucle
+}
+
+void loop2(){
+  //solidarizar contador con porcentaje de utilizacion total
+  //chequear si estoy en cooldown
+    //calcular error
+    //determinar y ejecutar accion
+    //establecer cooldown
+  //mostrar pin amarillo
+  //actualizar cooldown
 }
