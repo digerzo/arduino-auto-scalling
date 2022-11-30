@@ -1,3 +1,4 @@
+#include <Instancia.h>
 int pulsadorPinIncremento = 4; // Variable que guarda el número del pin al que conectamos el pulsador.
 int pulsadorPinDecremento = 5;
 int pinLed1 = 6;
@@ -23,13 +24,11 @@ int contador = 0;
 int cargaTotal = 0;
 int tiempoCooldownRestante = 0;
 
-void iniciarPinLeds(){
-  for (int i=pinLed1; i < pinLed1 + 5; i++) {
-    pinMode(i, OUTPUT);
-    digitalWrite(i, LOW);
-    Serial.println(i);
-  }
-}
+Instancia instancia1(pinLed1, true);
+Instancia instancia2(pinLed2, false);
+Instancia instancia3(pinLed3, false);
+Instancia instancia4(pinLed4, false);
+Instancia instancia5(pinLed5, false);
 
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
@@ -38,20 +37,7 @@ void setup() {
 
   pinMode(pinLedCooldown, OUTPUT);
   digitalWrite(pinLedCooldown, LOW);
-
-  iniciarPinLeds();
-
 }
-
-void controlarLed(int led, int limite) {
-    if (contador > limite) {
-      digitalWrite(led, HIGH);    
-    }
-    else {
-      digitalWrite(led, LOW);   
-    }
-  }
-
 
 void actualizarContador() {
   vPulsadorIncrementoAnterior = vPulsadorIncremento;
@@ -65,52 +51,11 @@ void actualizarContador() {
 }
 
 bool enCooldown(){
-  return tiempoCooldownRestante > 0;  
+  return tiempoCooldownRestante > 0;
 }
 
 void actualizarCooldown(int tiempo){
   tiempoCooldownRestante = tiempoCooldownRestante - tiempo;
-}
-
-int len(int arrayInt[]) {
-  return sizeof arrayInt / sizeof arrayInt[0];  
-}
-
-class Instancia {
-  public:
-    int pin;
-    bool activa;
-
-    void encender() {
-      digitalWrite(pin, HIGH);
-      activa = true;
-    }
-    void apagar() {
-      digitalWrite(pin, LOW);
-      activa = false;      
-    }
-    Instancia(int pin, bool activa){
-      pin = pin;
-      activa = activa;
-    }    
-};
-
-void loop(){
-  
-  actualizarContador();
-  if (!enCooldown()) {
-    controlarLed(pinLed1, 10);
-    controlarLed(pinLed2, 15);
-    digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
-  }
-  else {
-    digitalWrite(pinLedCooldown, HIGH);
-    actualizarCooldown(tiempoDelay);
-  }
-
-  Serial.println(contador);
-  
-  delay(tiempoDelay); // Espera un segundo al final del bucle
 }
 
 void loop2(){
@@ -133,5 +78,28 @@ void loop2(){
     //actualizar cooldown
     actualizarCooldown(tiempoDelay);
   }
+  delay(tiempoDelay);
+}
+
+void loop_test() {
+  instancia1.encender();
+  delay(tiempoDelay);
+  instancia1.apagar();
+  delay(tiempoDelay);
+  instancia2.encender();
+  delay(tiempoDelay);
+  instancia2.apagar();
+  delay(tiempoDelay);
+  instancia3.encender();
+  delay(tiempoDelay);
+  instancia3.apagar();
+  delay(tiempoDelay);
+  instancia4.encender();
+  delay(tiempoDelay);
+  instancia4.apagar();
+  delay(tiempoDelay);
+  instancia5.encender();
+  delay(tiempoDelay);
+  instancia5.apagar();
   delay(tiempoDelay);
 }
