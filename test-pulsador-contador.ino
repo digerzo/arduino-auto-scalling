@@ -6,9 +6,6 @@ int pinLed2 = 7;
 int pinLed3 = 8;
 int pinLed4 = 9;
 int pinLed5 = 10;
-
-int leds [5] = {pinLed1,pinLed2,pinLed3,pinLed4,pinLed5};
-
 int pinLedCooldown = 2;
 
 int vPulsadorIncremento = LOW;
@@ -29,6 +26,8 @@ Instancia instancia2(pinLed2, false);
 Instancia instancia3(pinLed3, false);
 Instancia instancia4(pinLed4, false);
 Instancia instancia5(pinLed5, false);
+
+Instancia instancias[5] = {instancia1,instancia2,instancia3,instancia4,instancia5};
 
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
@@ -81,25 +80,14 @@ void loop2(){
   delay(tiempoDelay);
 }
 
-void loop_test() {
-  instancia1.encender();
-  delay(tiempoDelay);
-  instancia1.apagar();
-  delay(tiempoDelay);
-  instancia2.encender();
-  delay(tiempoDelay);
-  instancia2.apagar();
-  delay(tiempoDelay);
-  instancia3.encender();
-  delay(tiempoDelay);
-  instancia3.apagar();
-  delay(tiempoDelay);
-  instancia4.encender();
-  delay(tiempoDelay);
-  instancia4.apagar();
-  delay(tiempoDelay);
-  instancia5.encender();
-  delay(tiempoDelay);
-  instancia5.apagar();
-  delay(tiempoDelay);
+void loop() {
+  for (int i=0; i < 5; i++){
+    Instancia ins = instancias[i];
+    ins.encender();
+    delay(tiempoDelay);
+    ins.apagar();
+    delay(tiempoDelay);
+    Serial.println("vuelta");
+  }
+  Serial.println("fin");
 }
