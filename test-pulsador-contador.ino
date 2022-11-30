@@ -16,8 +16,11 @@ int vPulsadorDecremento = LOW;
 int vPulsadorDecrementoAnterior = HIGH; //inicio asi
 
 const int tiempoCooldown = 30000; // 30 segundos
+const int tiempoDelay = 100;
+const int porcentajeReferencia = 60;
+int instanciasActivas = 1;
 int contador = 0;
-int tiempoDelay = 100;
+int cargaTotal = 0;
 int tiempoCooldownRestante = 0;
 
 void iniciarPinLeds(){
@@ -73,6 +76,25 @@ int len(int arrayInt[]) {
   return sizeof arrayInt / sizeof arrayInt[0];  
 }
 
+class Instancia {
+  public:
+    int pin;
+    bool activa;
+
+    void encender() {
+      digitalWrite(pin, HIGH);
+      activa = true;
+    }
+    void apagar() {
+      digitalWrite(pin, LOW);
+      activa = false;      
+    }
+    Instancia(int pin, bool activa){
+      pin = pin;
+      activa = activa;
+    }    
+};
+
 void loop(){
   
   actualizarContador();
@@ -92,11 +114,24 @@ void loop(){
 }
 
 void loop2(){
+  actualizarContador();
   //solidarizar contador con porcentaje de utilizacion total
+  cargaTotal = contador * 5;
   //chequear si estoy en cooldown
+  if (!enCooldown()) {
+    digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
     //calcular error
+    // int f = cargaTotal / instanciasActivas();
+    // int e = porcentajeReferencia - f;
     //determinar y ejecutar accion
+    // if (e > )
     //establecer cooldown
-  //mostrar pin amarillo
-  //actualizar cooldown
+  }
+  else {
+    //mostrar pin amarillo
+    digitalWrite(pinLedCooldown, HIGH);
+    //actualizar cooldown
+    actualizarCooldown(tiempoDelay);
+  }
+  delay(tiempoDelay);
 }
