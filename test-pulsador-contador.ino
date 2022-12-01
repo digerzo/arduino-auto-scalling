@@ -13,7 +13,7 @@ int vPulsadorDecremento = LOW;
 int vPulsadorDecrementoAnterior = HIGH; //inicio asi
 
 const int tiempoCooldown = 20000; // 20 segundos
-const int tiempoDelay = 1000;
+const int tiempoDelay = 100;
 const int factorContadorCarga = 5;
 int contador = 12;
 int cargaTotal = 0;
@@ -154,17 +154,22 @@ void printCargaTotalEInstanciasActivas(){
   Serial.println(instanciasActivas());
 }
 
+int acum = 0;
+
 void loop(){
   actualizarContador();
   //solidarizar contador con porcentaje de utilizacion total
   cargaTotal = contador * factorContadorCarga;
-  printCargaTotalEInstanciasActivas();
-  //chequear si estoy en cooldown
-  //calcular error
   float f = cargaTotal / instanciasActivas();
-  printf(f);
+  //calcular error
   float e = -(porcentajeReferencia - f);
-  printe(e);
+  if (acum == 1000) {
+    printCargaTotalEInstanciasActivas();
+    printf(f);
+    printe(e);
+    acum = 0;
+  }
+  //chequear si estoy en cooldown
   if (!enCooldown()) {
     digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
     //determinar y ejecutar accion
@@ -195,6 +200,7 @@ void loop(){
     //actualizar cooldown
     actualizarCooldown(tiempoDelay);
   }
+  acum = acum + tiempoDelay;  
   delay(tiempoDelay);
 }
 int cont = 0;
