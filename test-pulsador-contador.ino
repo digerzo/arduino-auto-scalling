@@ -1,4 +1,3 @@
-#include <Instancia.h>
 int pulsadorPinIncremento = 4; // Variable que guarda el número del pin al que conectamos el pulsador.
 int pulsadorPinDecremento = 5;
 int pinLed1 = 6;
@@ -26,14 +25,19 @@ const int primeraCotaSuperior = 70 - porcentajeReferencia;
 const int segundaCotaInferior = 30 - porcentajeReferencia;
 const int primeraCotaInferior = 40 - porcentajeReferencia;
 
-Instancia instancia1(pinLed1, 0);
-Instancia instancia2(pinLed2, 0);
-Instancia instancia3(pinLed3, 0);
-Instancia instancia4(pinLed4, 0);
-Instancia instancia5(pinLed5, 0);
-
 int cantidadInstancias = 5;
-Instancia instancias[5] = {instancia1,instancia2,instancia3,instancia4,instancia5};
+int instancias[5][2] = {{pinLed1,0},{pinLed2,0},{pinLed3,0},{pinLed4,0},{pinLed5,0}};
+
+void encenderInstancia(int posicion) {
+  int pin = instancias[posicion][0];
+  digitalWrite(pin, HIGH);
+  instancias[posicion][1] = 1;
+}
+void apagarInstancia(int posicion) {
+  int pin = instancias[posicion][0];
+  digitalWrite(pin, LOW);
+  instancias[posicion][1] = 0;
+}
 
 
 void setup() {
@@ -43,7 +47,12 @@ void setup() {
 
   pinMode(pinLedCooldown, OUTPUT);
   digitalWrite(pinLedCooldown, LOW);
-  instancia1.encender();
+  pinMode(pinLed1, OUTPUT);
+  pinMode(pinLed2, OUTPUT);
+  pinMode(pinLed3, OUTPUT);
+  pinMode(pinLed4, OUTPUT);
+  pinMode(pinLed5, OUTPUT);
+  encenderInstancia(0);
 }
 
 void actualizarContador() {
@@ -69,12 +78,9 @@ void actualizarCooldown(int tiempo){
 int instanciasActivas(){
   //devuelve la cantidad de instancias activas
   int res = 0;
-  Serial.println("Instancias activas");
   for (int i=0; i < cantidadInstancias; i++) {
-    Instancia ins = instancias[i];
-    Serial.println(i);
-    Serial.println(ins.activa());
-    if (ins.activa() == 1) res ++;
+    int activa = instancias[i][1];
+    if (activa == 1) res ++;
   }
   return res;
 }
@@ -94,9 +100,10 @@ void printe(float e){
 void encenderInstancias(int cantidad){
   int encendidas = 0;
   for (int i=0; i < cantidadInstancias; i++){
-    Instancia ins = instancias[i];
-    if (ins.activa() == 0) {
-      ins.encender();
+    //recorro las instancias chequeando si estan activas o no
+    int activa = instancias[i][1];
+    if (activa == 0) {
+      encenderInstancia(i);
       encendidas ++;
     }
     if (encendidas == cantidad){
@@ -122,19 +129,19 @@ void printCargaTotalEInstanciasActivas(){
   Serial.println(instanciasActivas());
 }
 
-void loop1(){
+void loop(){
   actualizarContador();
   //solidarizar contador con porcentaje de utilizacion total
   cargaTotal = contador * factorContadorCarga;
   printCargaTotalEInstanciasActivas();
   //chequear si estoy en cooldown
+  //calcular error
+  float f = cargaTotal / instanciasActivas();
+  printf(f);
+  float e = -(porcentajeReferencia - f);
+  printe(e);
   if (!enCooldown()) {
     digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
-    //calcular error
-    float f = cargaTotal / instanciasActivas();
-    printf(f);
-    float e = -(porcentajeReferencia - f);
-    printe(e);
     //determinar y ejecutar accion
     if (e <= primeraCotaSuperior && e >= primeraCotaInferior){
       Serial.println("todo bien, nada que hacer");
@@ -166,10 +173,11 @@ void loop1(){
   delay(tiempoDelay);
 }
 int flag = 1;
-void loop() {
-  // if (flag>0){
-  //   instancia2.encender();
-  // }
+void loop1() {
+  if (flag>0){
+    encenderInstancia(1);
+    encenderInstancia(3);
+  }
   int c = instanciasActivas();
   Serial.println(c); 
   Serial.println("fin");
