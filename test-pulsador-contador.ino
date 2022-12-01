@@ -15,11 +15,16 @@ int vPulsadorDecrementoAnterior = HIGH; //inicio asi
 
 const int tiempoCooldown = 30000; // 30 segundos
 const int tiempoDelay = 100;
-const int porcentajeReferencia = 60;
-int instanciasActivas = 1;
-int contador = 0;
+const int factorContadorCarga = 5;
+int contador = 12;
 int cargaTotal = 0;
 int tiempoCooldownRestante = 0;
+
+const int porcentajeReferencia = 60;
+const int segundaCotaSuperior = 80 - porcentajeReferencia;
+const int primeraCotaSuperior = 70 - porcentajeReferencia;
+const int segundaCotaInferior = 30 - porcentajeReferencia;
+const int primeraCotaInferior = 40 - porcentajeReferencia;
 
 Instancia instancia1(pinLed1, true);
 Instancia instancia2(pinLed2, false);
@@ -27,7 +32,9 @@ Instancia instancia3(pinLed3, false);
 Instancia instancia4(pinLed4, false);
 Instancia instancia5(pinLed5, false);
 
+int cantidadInstancias = 5;
 Instancia instancias[5] = {instancia1,instancia2,instancia3,instancia4,instancia5};
+
 
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
@@ -57,19 +64,75 @@ void actualizarCooldown(int tiempo){
   tiempoCooldownRestante = tiempoCooldownRestante - tiempo;
 }
 
-void loop2(){
+
+int instanciasActivas(){
+  //devuelve la cantidad de instancias activas
+  int res = 0;
+  for (int i=0; i < cantidadInstancias; i++) {
+    Instancia ins = instancias[i];
+    if (ins.activa()) res ++;
+  }
+  return res;
+}
+
+void printf(float f){
+    Serial.print("Porcentaje de utilizacion: ");
+    Serial.print(f);
+    Serial.println("%");
+}
+
+void printe(float e){
+    Serial.print("Señal error: ");
+    Serial.print(e);
+    Serial.println("%");
+}
+
+void encenderInstancias(int cantidad){
+  Serial.print("Encender instancias: ");
+  Serial.println(cantidad);  
+}
+void apagarInstancias(int cantidad){
+  Serial.print("Apagar instancias: ");
+  Serial.println(cantidad);  
+}
+
+void loop(){
   actualizarContador();
   //solidarizar contador con porcentaje de utilizacion total
-  cargaTotal = contador * 5;
+  cargaTotal = contador * factorContadorCarga;
+  Serial.print("Carga total: ");
+  Serial.println(cargaTotal);
+  Serial.print("Instancias activas: ");
+  Serial.println(instanciasActivas());
   //chequear si estoy en cooldown
   if (!enCooldown()) {
     digitalWrite(pinLedCooldown, LOW); // no estoy en cooldown
     //calcular error
-    // int f = cargaTotal / instanciasActivas();
-    // int e = porcentajeReferencia - f;
+    float f = cargaTotal / instanciasActivas();
+    printf(f);
+    float e = -(porcentajeReferencia - f);
+    printe(e);
     //determinar y ejecutar accion
-    // if (e > )
-    //establecer cooldown
+    if (e <= primeraCotaSuperior && e >= primeraCotaInferior){
+      Serial.println("todo bien, nada que hacer");
+    }
+    else {
+      if (e > segundaCotaSuperior){
+        encenderInstancias(2);
+      }
+      else if (e > primeraCotaSuperior && e <= segundaCotaSuperior){
+        encenderInstancias(1);
+      }
+      else if (e < segundaCotaInferior){
+        apagarInstancias(2);
+      }
+      else if (e < primeraCotaInferior && e >= segundaCotaInferior){
+        apagarInstancias(1);
+      }
+      //establecer cooldown
+      tiempoCooldownRestante = tiempoCooldown;      
+    }
+
   }
   else {
     //mostrar pin amarillo
@@ -80,7 +143,7 @@ void loop2(){
   delay(tiempoDelay);
 }
 
-void loop() {
+void loop1() {
   for (int i=0; i < 5; i++){
     Instancia ins = instancias[i];
     ins.encender();
