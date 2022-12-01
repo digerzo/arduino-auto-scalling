@@ -45,7 +45,7 @@ void apagarInstancia(int posicion) {
 void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
   pinMode(pulsadorPinIncremento, INPUT);
-  pinMode(pulsadorPinIncremento, INPUT);
+  pinMode(pulsadorPinDecremento, INPUT);
   pinMode(pinPulsadorPausa, INPUT);
 
   pinMode(pinLedCooldown, OUTPUT);
