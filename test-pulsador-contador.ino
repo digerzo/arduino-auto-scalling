@@ -12,8 +12,8 @@ int vPulsadorIncrementoAnterior = HIGH; //inicio asi
 int vPulsadorDecremento = LOW;
 int vPulsadorDecrementoAnterior = HIGH; //inicio asi
 
-const int tiempoCooldown = 30000; // 30 segundos
-const int tiempoDelay = 100;
+const int tiempoCooldown = 20000; // 20 segundos
+const int tiempoDelay = 1000;
 const int factorContadorCarga = 5;
 int contador = 12;
 int cargaTotal = 0;
@@ -119,8 +119,33 @@ void encenderInstancias(int cantidad){
   }
 }
 void apagarInstancias(int cantidad){
-  Serial.print("Apagar instancias: ");
-  Serial.println(cantidad);  
+  int apagadas = 0;
+  int activas = instanciasActivas();
+  if (activas == 1){
+    Serial.println("No puedo apagar instancias, minimo alcanzado");
+    return;    
+  }
+  if (cantidad >= activas){
+    cantidad = activas - 1; //puedo apagar todas menos 1
+  }
+  for (int i=0; i < cantidadInstancias; i++){
+    //recorro las instancias chequeando si estan activas o no
+    int activa = instancias[i][1];
+    if (activa == 1) {
+      apagarInstancia(i);
+      apagadas ++;
+    }
+    if (apagadas == cantidad){
+      Serial.print("Apague: ");
+      Serial.println(apagadas);
+      break;      
+    }
+  }
+  if (apagadas < cantidad){
+    Serial.print("Apague solo: ");
+    Serial.println(apagadas);
+    Serial.println("Minimo de instancias alcanzado");           
+  }
 }
 void printCargaTotalEInstanciasActivas(){
   Serial.print("Carga total: ");
@@ -172,15 +197,19 @@ void loop(){
   }
   delay(tiempoDelay);
 }
-int flag = 1;
+int cont = 0;
 void loop1() {
-  if (flag>0){
-    encenderInstancia(1);
-    encenderInstancia(3);
-  }
+
+  encenderInstancias(1);
   int c = instanciasActivas();
   Serial.println(c); 
-  Serial.println("fin");
-  flag = 0;
+  
   delay(1000);
+  if (cont == 3) {
+    apagarInstancias(3);
+    cont = 0;
+  }
+  delay(1000);
+  cont ++;
+  Serial.println("fin");
 }
