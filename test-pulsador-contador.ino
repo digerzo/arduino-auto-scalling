@@ -1,3 +1,5 @@
+int pinLedCooldown = 2;
+int pinPulsadorPausa = 3;
 int pulsadorPinIncremento = 4; // Variable que guarda el número del pin al que conectamos el pulsador.
 int pulsadorPinDecremento = 5;
 int pinLed1 = 6;
@@ -5,12 +7,12 @@ int pinLed2 = 7;
 int pinLed3 = 8;
 int pinLed4 = 9;
 int pinLed5 = 10;
-int pinLedCooldown = 2;
 
 int vPulsadorIncremento = LOW;
 int vPulsadorIncrementoAnterior = HIGH; //inicio asi
 int vPulsadorDecremento = LOW;
 int vPulsadorDecrementoAnterior = HIGH; //inicio asi
+int valorPausa = LOW;
 
 const int tiempoCooldown = 20000; // 20 segundos
 const int tiempoDelay = 100;
@@ -44,6 +46,7 @@ void setup() {
   Serial.begin(9600); // Inicializamos el puerto serie.
   pinMode(pulsadorPinIncremento, INPUT);
   pinMode(pulsadorPinIncremento, INPUT);
+  pinMode(pinPulsadorPausa, INPUT);
 
   pinMode(pinLedCooldown, OUTPUT);
   digitalWrite(pinLedCooldown, LOW);
@@ -74,7 +77,6 @@ void actualizarCooldown(int tiempo){
   tiempoCooldownRestante = tiempoCooldownRestante - tiempo;
 }
 
-
 int instanciasActivas(){
   //devuelve la cantidad de instancias activas
   int res = 0;
@@ -86,7 +88,7 @@ int instanciasActivas(){
 }
 
 void printf(float f){
-    Serial.print("Porcentaje de utilizacion: ");
+    Serial.print("Promedio Porcentaje de utilizacion: ");
     Serial.print(f);
     Serial.println("%");
 }
@@ -117,6 +119,7 @@ void encenderInstancias(int cantidad){
     Serial.println(encendidas);
     Serial.println("Maximo de instancias alcanzado");           
   }
+
 }
 void apagarInstancias(int cantidad){
   int apagadas = 0;
@@ -157,6 +160,14 @@ void printCargaTotalEInstanciasActivas(){
 int acum = 0;
 
 void loop(){
+  valorPausa = digitalRead(pinPulsadorPausa);
+  if (valorPausa == HIGH){
+    while (valorPausa == HIGH){
+      Serial.println("Sistema pausado");
+      delay(2000); //espero 2 segundos para volver a preguntar
+      valorPausa = digitalRead(pinPulsadorPausa);
+    }
+  }  
   actualizarContador();
   //solidarizar contador con porcentaje de utilizacion total
   cargaTotal = contador * factorContadorCarga;
